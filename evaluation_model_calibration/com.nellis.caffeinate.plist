@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Keeps the Mac awake WHILE ON AC POWER, for as long as calibration collection
+  runs. `caffeinate -s` prevents idle sleep only when plugged in — battery-only
+  sleep behavior is untouched, so this has no effect if you unplug and walk away.
+
+  Why this exists: launchd's `tick` job (com.nellis.calibration.plist) can only
+  run while the Mac is actually awake. Sleep doesn't pause it gracefully — it
+  simply doesn't run, and a snapshot round missed by more than its 2-hour grace
+  window is lost for good (finals are exempt and always eventually fire). This
+  agent is a separate, independent safeguard purely for keeping the machine awake.
+
+  KeepAlive restarts caffeinate if it's ever killed, so a single misfire doesn't
+  quietly turn sleep back on for the rest of the run.
+
+  Install:   cp evaluation_model_calibration/com.nellis.caffeinate.plist ~/Library/LaunchAgents/
+             launchctl load ~/Library/LaunchAgents/com.nellis.caffeinate.plist
+  Remove:    launchctl unload ~/Library/LaunchAgents/com.nellis.caffeinate.plist
+             rm ~/Library/LaunchAgents/com.nellis.caffeinate.plist
+  Status:    launchctl list | grep nellis
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.nellis.caffeinate</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/caffeinate</string>
+        <string>-s</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/ducpham/Desktop/Projects/nellis-auction-mcp/evaluation_model_calibration/data/caffeinate.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/ducpham/Desktop/Projects/nellis-auction-mcp/evaluation_model_calibration/data/caffeinate.err.log</string>
+</dict>
+</plist>

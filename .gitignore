@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# Raw calibration data grows every night indefinitely — not source, keep the
+# repo focused on code + docs. The collector scripts that PRODUCE this data
+# are still tracked normally.
+evaluation_model_calibration/data/

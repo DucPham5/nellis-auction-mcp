@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Runs the calibration collector's `tick` every 15 minutes.
+
+  launchd rather than cron on purpose: cron does not fire while the Mac is
+  asleep and never backfills what it missed, which is the exact failure this
+  whole state-machine design exists to survive. launchd runs a missed job once
+  on wake.
+
+  Install:   cp evaluation_model_calibration/com.nellis.calibration.plist ~/Library/LaunchAgents/
+             launchctl load ~/Library/LaunchAgents/com.nellis.calibration.plist
+  Remove:    launchctl unload ~/Library/LaunchAgents/com.nellis.calibration.plist
+             rm ~/Library/LaunchAgents/com.nellis.calibration.plist
+  Status:    launchctl list | grep nellis
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.nellis.calibration</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/ducpham/Desktop/Projects/nellis-auction-mcp/.venv/bin/python3</string>
+        <string>-m</string>
+        <string>evaluation_model_calibration.collector</string>
+        <string>tick</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/ducpham/Desktop/Projects/nellis-auction-mcp</string>
+
+    <key>StartInterval</key>
+    <integer>900</integer>
+
+    <!-- Don't fire on load; the next interval is soon enough and `tick` is a
+         no-op when nothing is due anyway. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/ducpham/Desktop/Projects/nellis-auction-mcp/evaluation_model_calibration/data/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/ducpham/Desktop/Projects/nellis-auction-mcp/evaluation_model_calibration/data/launchd.err.log</string>
+</dict>
+</plist>
